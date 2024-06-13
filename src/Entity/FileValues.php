@@ -21,11 +21,10 @@ class FileValues
     public ?string $value = null;
 
     #[ORM\Column]
-    public ?int $row_number = null;
+    private ?int $file_row_index = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
-
+    public ?\DateTimeImmutable $createdAt = null;
     #[ORM\PrePersist]
     public function setCreatedAtValue()
     {
@@ -61,18 +60,18 @@ class FileValues
         return $this;
     }
 
-    public function getRowNumber(): ?int
+    
+    public function getFileRowIndex(): ?int
     {
-        return $this->row_number;
+        return $this->file_row_index;
     }
 
-    public function setRowNumber(int $row_number): static
+    public function setFileRowIndex(int $file_row_index): static
     {
-        $this->row_number = $row_number;
+        $this->file_row_index = $file_row_index;
 
         return $this;
     }
-
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;

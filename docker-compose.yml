@@ -1,22 +1,25 @@
 version: "3"
 
 services:
-  web:
-    build: .
+  symfony_php:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
       - .:/var/www/html
     networks:
-      - symfomy
+      - symfony_network
     environment:
-      DATABASE_URL: mysql://symfomy:symfomy@mysql:3306/symfony_api_db?serverVersion=10.11.2-MariaDB&charset=utf8mb4
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
-      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      DATABASE_URL: mysql://${DOCKER_DB_USER}:${DOCKER_DB_PASSWORD}@db:3306/${DOCKER_DB_NAME}
+      JWT_SECRET_KEY: /var/www/symfony/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /var/www/symfony/config/jwt/public.pem
       JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+      CORS_ALLOW_ORIGIN: '*'
 
   db:
-    image: mysql:8.0
+    image: mysql:latest
     container_name: symfony_mysql
     restart: unless-stopped
     ports:
@@ -24,12 +27,12 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DOCKER_DB_NAME}
+      MYSQL_USER: ${DOCKER_DB_USER}
+      MYSQL_PASSWORD: ${DOCKER_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD}
     networks:
-      - symfomy
+      - symfony_network
 
   phpmyadmin:
     image: phpmyadmin
@@ -42,11 +45,11 @@ services:
     environment:
       PMA_HOST: db
     networks:
-      - symfomy
+      - symfony_network
 
 networks:
-  symfomy:
-
+  symfony_network:
+    driver: bridge
 
 volumes:
   db_data:

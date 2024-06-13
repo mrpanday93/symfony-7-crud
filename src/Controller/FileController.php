@@ -83,7 +83,7 @@ class FileController extends AbstractController
 					$fileValues = new FileValues();
 					$fileValues->setHeaderId($headerId);
 					$fileValues->setValue($record['value']);
-					$fileValues->setRowNumber($record['row']);
+					$fileValues->setFileRowIndex($record['row']);
 					$entityManager->persist($fileValues);
 					if (($record['row'] % count($record)) === 0) {
 						$entityManager->flush();
@@ -107,7 +107,7 @@ class FileController extends AbstractController
 	#[Route('/files', name: 'fetch_files', methods: ['GET'])]
 	public function fetchAll(): JsonResponse
 	{
-		$files = $this->fileRepository->findBy([],['createdAt' => 'DESC']);
+		$files = $this->fileRepository->findBy(['user_id' => $this->user->getId()],['createdAt' => 'DESC']);
 		
 		return $this->json($files, 200);
 	}
@@ -122,7 +122,7 @@ class FileController extends AbstractController
 
 		foreach ($headers as $header) {
 			$values[$header->getTitle()] = $this->fileValuesRepository->findBy(['header_id' => $header->getId()], 
-			['row_number' => 'ASC']);
+			['file_row_index' => 'ASC']);
 		}
 
 		$finalData = [];

@@ -99,4 +99,5 @@ class File
 
         return $this;
     }
+
 }
