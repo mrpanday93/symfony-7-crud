@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - symfomy
+    environment:
+      DATABASE_URL: mysql://symfomy:symfomy@mysql:3306/symfony_api_db?serverVersion=10.11.2-MariaDB&charset=utf8mb4
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+
+  db:
+    image: mysql:8.0
+    container_name: symfony_mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    networks:
+      - symfomy
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: symfony_phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 9000:80
+    environment:
+      PMA_HOST: db
+    networks:
+      - symfomy
+
+networks:
+  symfomy:
+
+
+volumes:
+  db_data:
